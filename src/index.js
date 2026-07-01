@@ -15,17 +15,16 @@ const alunos = [];
 // verificar a saude da api
 app.get("/", (requisicao, resposta) => {
   try {
-    resposta
-      .status(200)
+    resposta.status(200)
       .json({
         mensagem: "API funcionando com sucesso!",
         status: "ok",
-        date: new Date.now(),
+        date: new Date().toLocaleString("pt-BR", { timeZone: "America/Recife" })
       });
   } catch (error) {
     resposta
       .status(500)
-      .json({ mensagem: "Erro ao listar os alunos", erro: error });
+      .json({ mensagem: "Erro ao iniciar API!", erro: error.message });
   }
 });
 
