@@ -16,7 +16,7 @@ class AlunoModel{
         return aluno
     }
 
-    static editar(matricula, novoNome, novoEmail){
+    static editarTotal(matricula, nome, email){
        const aluno = AlunoModel.listarPorMatricula(matricula)
 
        if(!aluno){
