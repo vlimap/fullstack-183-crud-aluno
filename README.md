@@ -1,594 +1,259 @@
-# API de Alunos com Node.js e Express
+# API de Alunos com Node.js, Express e Arquitetura em Camadas
 
-Este projeto é uma API simples para cadastrar alunos e listar alunos usando **Node.js**, **Express** e **dotenv**.
+Este projeto e uma API didatica para ensinar os primeiros passos de backend com **Node.js** e **Express**.
 
-A aplicação está toda concentrada no arquivo [`src/index.js`](src/index.js). Por isso, este README explica o projeto acompanhando exatamente o que foi feito nesse arquivo, passo por passo, de um jeito bem mastigado para quem está começando em programação.
+A API permite:
 
-## O Que Essa Aplicação Faz
+- cadastrar alunos;
+- listar todos os alunos;
+- buscar um aluno pela matricula;
+- editar os dados de um aluno;
+- excluir um aluno;
+- excluir todos os alunos.
 
-Esta API permite:
+O objetivo principal deste projeto nao e usar banco de dados ainda. O objetivo e entender como uma API funciona, como as rotas sao organizadas e como separar responsabilidades usando **rotas**, **controllers** e **models**.
 
-- Cadastrar um aluno.
-- Listar todos os alunos cadastrados.
-- Buscar um aluno pela matrícula.
+## O Que E Uma API?
 
-O aluno cadastrado possui três informações:
+API significa **Application Programming Interface**.
 
-```json
-{
-  "matricula": "a92222",
-  "nome": "Maria Silva",
-  "email": "maria@email.com"
-}
+De forma simples, uma API e uma forma de um sistema conversar com outro sistema.
+
+Neste projeto, a API recebe requisicoes HTTP e devolve respostas em JSON.
+
+Exemplo:
+
+```text
+Cliente faz uma requisicao:
+GET http://localhost:3000/listar
+
+Servidor responde:
+[
+  {
+    "matricula": "a92222",
+    "nome": "Maria Silva",
+    "email": "maria@email.com"
+  }
+]
 ```
-
-Neste projeto, os alunos ficam guardados em um array chamado `alunos`.
-
-No arquivo `src/index.js`, ele aparece assim:
-
-```js
-const alunos = [];
-```
-
-Isso significa que os dados ficam salvos apenas na memória do servidor. Se você parar o servidor e iniciar de novo, a lista de alunos volta a ficar vazia.
-
-Este projeto ainda não usa banco de dados.
 
 ## Tecnologias Usadas
 
 ### Node.js
 
-O Node.js permite rodar JavaScript fora do navegador.
+O Node.js permite executar JavaScript fora do navegador.
 
-Neste projeto, ele é usado para criar um servidor backend.
+Neste projeto, ele e usado para criar um servidor backend.
 
 ### Express
 
-O Express é uma biblioteca do Node.js que facilita a criação de APIs.
+O Express e uma biblioteca do Node.js que facilita a criacao de APIs.
 
-Com ele, criamos rotas como:
+Com ele, conseguimos criar rotas como:
 
 ```js
-app.get("/listar", ...)
-app.get("/listar/:matricula", ...)
-app.post("/cadastrar", ...)
+router.get("/listar", AlunoController.listarTodos);
+router.post("/cadastrar", AlunoController.cadastrar);
+router.delete("/excluir/:matricula", AlunoController.excluirPorMatricula);
 ```
 
 ### dotenv
 
-O dotenv permite usar variáveis de ambiente dentro do projeto.
+O dotenv permite carregar variaveis de ambiente a partir do arquivo `.env`.
 
-Neste projeto, ele é usado para pegar a porta do servidor a partir do arquivo `.env`.
+Neste projeto, usamos o `.env` para definir a porta do servidor:
 
-No código:
-
-```js
-dotenv.config();
+```env
+PORTA=3000
 ```
 
-E depois:
+## Como Os Dados Sao Salvos
 
-```js
-const porta = process.env.PORTA;
-```
+Este projeto usa um array para simular um banco de dados.
 
-## Estrutura Do Projeto
+O arquivo responsavel por isso e:
 
 ```text
-aluno/
-├── src/
-│   └── index.js
-├── .env
-├── .env.example
-├── .gitignore
-├── package.json
-├── package-lock.json
-└── README.md
+src/config/database.js
 ```
 
-### `src/index.js`
-
-É o arquivo principal da aplicação.
-
-Nele estão:
-
-- A importação do Express.
-- A importação do dotenv.
-- A configuração para receber JSON.
-- A criação do array de alunos.
-- As rotas da API.
-- O comando que inicia o servidor.
-
-### `.env`
-
-É o arquivo onde fica a porta do servidor.
-
-Exemplo:
-
-```env
-PORTA=3000
-```
-
-### `.env.example`
-
-É um arquivo de exemplo para mostrar qual variável precisa existir no `.env`.
-
-Hoje ele indica que você deve adicionar uma porta.
-
-Um exemplo correto seria:
-
-```env
-PORTA=3000
-```
-
-### `package.json`
-
-É o arquivo de configuração do projeto Node.js.
-
-Nele estão as dependências e os scripts.
-
-O script principal do projeto é:
-
-```json
-"start": "node --watch src/index.js"
-```
-
-Isso significa que, ao rodar:
-
-```bash
-npm start
-```
-
-O Node executa o arquivo `src/index.js`.
-
-O `--watch` faz o Node observar alterações no código e reiniciar o servidor automaticamente quando você salvar mudanças.
-
-## Como Rodar O Projeto
-
-### 1. Abrir O Terminal Na Pasta Do Projeto
-
-Entre na pasta:
-
-```powershell
-cd C:\Users\i3831\Desktop\aluno
-```
-
-### 2. Instalar As Dependências
-
-Rode:
-
-```bash
-npm install
-```
-
-Esse comando instala as bibliotecas usadas no projeto:
-
-- `express`
-- `dotenv`
-
-### 3. Configurar A Porta
-
-Abra o arquivo `.env` e deixe assim:
-
-```env
-PORTA=3000
-```
-
-Você pode escolher outra porta, mas nos exemplos deste README será usada a porta `3000`.
-
-### 4. Iniciar O Servidor
-
-Rode:
-
-```bash
-npm start
-```
-
-Se tudo estiver certo, aparecerá no terminal:
-
-```text
-O servidor está em execução!
-```
-
-A API ficará disponível em:
-
-```text
-http://localhost:3000
-```
-
-## Explicando O Código Do `src/index.js`
-
-Agora vamos passar pelo arquivo principal da aplicação.
-
-## Importação Das Bibliotecas
-
-No começo do arquivo temos:
-
-```js
-import express from "express";
-import dotenv from "dotenv";
-```
-
-Aqui estamos trazendo duas bibliotecas para dentro do projeto.
-
-### `express`
-
-É usado para criar o servidor e as rotas.
-
-### `dotenv`
-
-É usado para ler as informações do arquivo `.env`.
-
-Como o `package.json` tem:
-
-```json
-"type": "module"
-```
-
-podemos usar `import` em vez de `require`.
-
-## Carregando O Arquivo `.env`
-
-Depois temos:
-
-```js
-dotenv.config();
-```
-
-Essa linha manda o dotenv carregar as variáveis que estão no arquivo `.env`.
-
-Sem essa linha, o código abaixo poderia não conseguir ler a porta:
-
-```js
-process.env.PORTA
-```
-
-## Criando A Aplicação Express
-
-```js
-const app = express();
-```
-
-Aqui criamos a aplicação Express.
-
-A variável `app` representa o servidor da API.
-
-Ela é usada para:
-
-- Configurar comportamentos da aplicação.
-- Criar rotas.
-- Iniciar o servidor.
-
-## Permitindo Que A API Receba JSON
-
-```js
-app.use(express.json());
-```
-
-Essa linha é muito importante.
-
-Ela permite que a API consiga entender dados enviados em formato JSON no corpo da requisição.
-
-Por exemplo, quando enviamos:
-
-```json
-{
-  "matricula": "a92222",
-  "nome": "Maria Silva",
-  "email": "maria@email.com"
-}
-```
-
-o Express consegue transformar esse JSON em um objeto acessível por:
-
-```js
-requisicao.body
-```
-
-Sem `app.use(express.json())`, o cadastro poderia não receber os dados corretamente.
-
-## Pegando A Porta Do Servidor
-
-```js
-const porta = process.env.PORTA;
-```
-
-Essa linha pega a porta configurada no arquivo `.env`.
-
-Se o `.env` estiver assim:
-
-```env
-PORTA=3000
-```
-
-então a variável `porta` terá o valor `3000`.
-
-## Criando A Lista De Alunos
+Dentro dele existe:
 
 ```js
 const alunos = [];
 ```
 
-Aqui foi criado um array vazio.
+Isso significa que os alunos ficam salvos apenas na memoria do servidor.
 
-Um array é uma lista.
+Importante:
 
-Neste projeto, essa lista guarda todos os alunos cadastrados.
+- se o servidor estiver rodando, os dados continuam no array;
+- se o servidor for reiniciado, os dados somem;
+- isso e esperado neste projeto, porque ele ainda nao usa banco de dados real.
 
-Depois de cadastrar um aluno, ela pode ficar assim:
-
-```js
-[
-  {
-    matricula: "a92222",
-    nome: "Maria Silva",
-    email: "maria@email.com"
-  }
-]
-```
-
-Como essa lista está dentro do código e não em um banco de dados, ela existe somente enquanto o servidor está rodando.
-
-## Rota Para Listar Todos Os Alunos
-
-No código:
-
-```js
-app.get("/listar", (requisicao, resposta) => {
-  try {
-    if (alunos.length === 0) {
-      return resposta.status(200).json({ mensagem: "Nenhum aluno cadastrado!" });
-    }
-    resposta.status(200).json(alunos);
-  } catch (error) {
-    resposta.status(500).json({ mensagem: "Erro ao listar os alunos", erro: error });
-  }
-});
-```
-
-Essa rota usa o método `GET`.
-
-O `GET` é usado quando queremos buscar informações.
-
-A rota completa é:
+## Estrutura Do Projeto
 
 ```text
-GET http://localhost:3000/listar
+aluno/
+├── docs/
+├── node_modules/
+├── src/
+│   ├── config/
+│   │   └── database.js
+│   ├── modules/
+│   │   └── aluno/
+│   │       ├── controllers/
+│   │       │   └── aluno.controller.js
+│   │       ├── models/
+│   │       │   └── aluno.model.js
+│   │       └── routes/
+│   │           └── aluno.route.js
+│   ├── utils/
+│   │   └── utils.js
+│   └── index.js
+├── .env
+├── .env.example
+├── .gitignore
+├── package-lock.json
+├── package.json
+└── README.md
 ```
 
-### O Que Essa Rota Faz
+## Responsabilidade De Cada Arquivo
 
-Ela verifica se existem alunos cadastrados.
+### `src/index.js`
 
-Essa parte faz a verificação:
+E o arquivo principal da aplicacao.
+
+Ele faz quatro coisas importantes:
+
+1. importa as bibliotecas;
+2. configura o Express;
+3. registra as rotas;
+4. inicia o servidor.
+
+### `src/config/database.js`
+
+Simula o banco de dados da aplicacao.
+
+Neste projeto, o "banco" e apenas um array:
 
 ```js
-if (alunos.length === 0) {
-  return resposta.status(200).json({ mensagem: "Nenhum aluno cadastrado!" });
-}
+const alunos = [];
 ```
 
-`alunos.length` mostra quantos itens existem dentro do array.
+### `src/modules/aluno/routes/aluno.route.js`
 
-Se o tamanho for `0`, significa que não existe nenhum aluno cadastrado.
-
-Nesse caso, a API responde:
-
-```json
-{
-  "mensagem": "Nenhum aluno cadastrado!"
-}
-```
-
-Se já existirem alunos, essa linha é executada:
-
-```js
-resposta.status(200).json(alunos);
-```
-
-Ela retorna a lista completa de alunos.
-
-## Rota Para Buscar Aluno Pela Matrícula
-
-No código:
-
-```js
-app.get("/listar/:matricula", (requisicao, resposta) => {
-  try {
-    const matricula = requisicao.params.matricula;
-    const aluno_procurado = alunos.find(aluno => aluno.matricula === matricula);
-
-    if (!aluno_procurado) {
-      return resposta.status(200).json({ mensagem: "Aluno não encontrado!" });
-    }
-
-    resposta.status(200).json(aluno_procurado);
-  } catch (error) {
-    resposta.status(500).json({ mensagem: "Erro ao listar o aluno", erro: error });
-  }
-});
-```
-
-Essa rota também usa `GET`, porque ela busca informação.
-
-A rota é:
-
-```text
-GET http://localhost:3000/listar/a92222
-```
-
-O trecho `:matricula` é um parâmetro da rota.
-
-Isso significa que esse valor muda dependendo da matrícula que você quer buscar.
+Define as rotas relacionadas aos alunos.
 
 Exemplo:
 
-```text
-/listar/a92222
-```
-
-Nesse caso, a matrícula é:
-
-```text
-a92222
-```
-
-O código pega esse valor aqui:
-
 ```js
-const matricula = requisicao.params.matricula;
+router.get("/listar", AlunoController.listarTodos);
 ```
 
-Depois procura dentro do array:
+Essa linha significa:
 
-```js
-const aluno_procurado = alunos.find(aluno => aluno.matricula === matricula);
-```
+- quando alguem acessar `GET /listar`;
+- o Express deve chamar `AlunoController.listarTodos`.
 
-O método `.find()` percorre a lista de alunos e procura o primeiro aluno cuja matrícula seja igual à matrícula enviada na URL.
+### `src/modules/aluno/controllers/aluno.controller.js`
 
-Se não encontrar, cai nesse trecho:
+Contem a logica das respostas HTTP.
 
-```js
-if (!aluno_procurado) {
-  return resposta.status(200).json({ mensagem: "Aluno não encontrado!" });
-}
-```
+O controller:
 
-Se encontrar, retorna o aluno:
+- recebe a requisicao;
+- valida os dados;
+- chama o model;
+- devolve uma resposta para o cliente.
 
-```js
-resposta.status(200).json(aluno_procurado);
-```
+### `src/modules/aluno/models/aluno.model.js`
 
-## Rota Para Cadastrar Aluno
+Manipula os dados.
 
-No código:
+O model:
 
-```js
-app.post("/cadastrar", (requisicao, resposta) => {
-  try {
-    const { matricula, nome, email } = requisicao.body;
-    const dados = { matricula, nome, email };
+- cadastra aluno no array;
+- procura aluno;
+- edita aluno;
+- remove aluno.
 
-    if (!matricula || !nome || !email) {
-      return resposta.status(400).json({ mensagem: "Todos os campos são obrigatorios!" });
-    }
+## Fluxo Da Aplicacao
 
-    alunos.push(dados);
-
-    resposta.status(201).json({ mensagem: "Cadastro realizado com sucesso!" });
-  } catch (error) {
-    resposta.status(500).json({ mensagem: "Erro ao cadastrar usuario!", erro: error });
-  }
-});
-```
-
-Essa rota usa o método `POST`.
-
-O `POST` é usado quando queremos enviar dados para criar alguma coisa.
-
-A rota completa é:
+Quando o usuario cadastra um aluno, o fluxo e este:
 
 ```text
-POST http://localhost:3000/cadastrar
+Cliente
+  |
+  | POST /cadastrar
+  v
+Rota
+  |
+  | chama o controller
+  v
+Controller
+  |
+  | valida os dados e chama o model
+  v
+Model
+  |
+  | salva no array
+  v
+database.js
 ```
 
-## Corpo Da Requisição
+Esse tipo de separacao ajuda a deixar o codigo mais organizado.
 
-Para cadastrar um aluno, você precisa enviar um JSON no corpo da requisição:
+## Instalacao
+
+Abra o terminal na pasta do projeto:
+
+```powershell
+cd C:\Users\i3831\Desktop\aluno
+```
+
+Instale as dependencias:
+
+```bash
+npm install
+```
+
+## Configuracao
+
+Crie ou confira o arquivo `.env` na raiz do projeto.
+
+Ele deve ter:
+
+```env
+PORTA=3000
+```
+
+O arquivo `.env.example` serve como modelo para mostrar quais variaveis precisam existir.
+
+## Como Rodar
+
+Execute:
+
+```bash
+npm start
+```
+
+O projeto usa este script no `package.json`:
 
 ```json
-{
-  "matricula": "a92222",
-  "nome": "Maria Silva",
-  "email": "maria@email.com"
-}
+"start": "node --watch src/index.js"
 ```
 
-O código pega esses dados aqui:
+O `--watch` faz o Node reiniciar automaticamente quando algum arquivo e alterado.
 
-```js
-const { matricula, nome, email } = requisicao.body;
+Se tudo estiver correto, o terminal mostrara:
+
+```text
+O servidor esta em execucao na porta 3000!
 ```
 
-Isso se chama desestruturação.
-
-É como se o código estivesse dizendo:
-
-- Pegue a `matricula` que veio no corpo da requisição.
-- Pegue o `nome` que veio no corpo da requisição.
-- Pegue o `email` que veio no corpo da requisição.
-
-Depois, o código monta um objeto:
-
-```js
-const dados = { matricula, nome, email };
-```
-
-Esse objeto representa o aluno que será salvo.
-
-## Validação Dos Campos
-
-Antes de salvar, o código verifica se todos os campos foram enviados:
-
-```js
-if (!matricula || !nome || !email) {
-  return resposta.status(400).json({ mensagem: "Todos os campos são obrigatorios!" });
-}
-```
-
-Esse trecho significa:
-
-- Se não tiver matrícula, retorna erro.
-- Se não tiver nome, retorna erro.
-- Se não tiver e-mail, retorna erro.
-
-O status `400` significa que o cliente enviou uma requisição errada ou incompleta.
-
-Resposta nesse caso:
-
-```json
-{
-  "mensagem": "Todos os campos são obrigatorios!"
-}
-```
-
-## Salvando O Aluno
-
-Se todos os campos foram enviados, o aluno é salvo aqui:
-
-```js
-alunos.push(dados);
-```
-
-O `.push()` adiciona um novo item no final do array.
-
-Ou seja, ele coloca o aluno dentro da lista `alunos`.
-
-Depois disso, a API responde:
-
-```js
-resposta.status(201).json({ mensagem: "Cadastro realizado com sucesso!" });
-```
-
-O status `201` significa que algo foi criado com sucesso.
-
-## Iniciando O Servidor
-
-No final do arquivo:
-
-```js
-app.listen(porta, () => {
-  console.log(`O servidor está em execução!`);
-});
-```
-
-Essa parte inicia o servidor.
-
-O Express começa a escutar requisições na porta configurada.
-
-Se a porta for `3000`, o servidor ficará em:
+A API ficara disponivel em:
 
 ```text
 http://localhost:3000
@@ -596,41 +261,114 @@ http://localhost:3000
 
 ## Rotas Da API
 
-| Método | Rota | O Que Faz |
+| Metodo | Rota | Descricao |
 | --- | --- | --- |
+| `GET` | `/` | Verifica se a API esta funcionando |
 | `GET` | `/listar` | Lista todos os alunos |
-| `GET` | `/listar/:matricula` | Busca um aluno pela matrícula |
+| `GET` | `/listar/:matricula` | Busca um aluno pela matricula |
 | `POST` | `/cadastrar` | Cadastra um aluno |
+| `PUT` | `/editar/total/:matricula` | Edita nome e email de um aluno |
+| `PATCH` | `/editar/parcial/:matricula` | Edita nome ou email de um aluno |
+| `DELETE` | `/excluir/todos` | Exclui todos os alunos |
+| `DELETE` | `/excluir/:matricula` | Exclui um aluno pela matricula |
 
-## Como Testar A API
+## Explicando Os Metodos HTTP
 
-Você pode testar usando:
+### GET
 
-- Postman.
-- Insomnia.
-- Thunder Client no VS Code.
-- Navegador, apenas para rotas `GET`.
-- Terminal.
+Usado para buscar informacoes.
 
-## Testando Pelo Navegador
-
-O navegador consegue acessar rotas `GET`.
-
-Para listar todos:
+Exemplos:
 
 ```text
-http://localhost:3000/listar
+GET /listar
+GET /listar/a92222
 ```
 
-Para buscar por matrícula:
+### POST
+
+Usado para criar um novo recurso.
+
+Exemplo:
 
 ```text
-http://localhost:3000/listar/a92222
+POST /cadastrar
 ```
 
-Para cadastrar aluno, use Postman, Insomnia, Thunder Client ou terminal, porque cadastro usa `POST`.
+### PUT
 
-## Testando Com PowerShell
+Usado para atualizar um recurso de forma completa.
+
+Neste projeto, o PUT exige `nome` e `email`.
+
+Exemplo:
+
+```text
+PUT /editar/total/a92222
+```
+
+### PATCH
+
+Usado para atualizar parte de um recurso.
+
+Neste projeto, o PATCH permite enviar apenas `nome`, apenas `email` ou os dois.
+
+Exemplo:
+
+```text
+PATCH /editar/parcial/a92222
+```
+
+### DELETE
+
+Usado para excluir um recurso.
+
+Exemplos:
+
+```text
+DELETE /excluir/a92222
+DELETE /excluir/todos
+```
+
+## Modelo De Aluno
+
+Um aluno possui:
+
+```json
+{
+  "matricula": "a92222",
+  "nome": "Maria Silva",
+  "email": "maria@email.com"
+}
+```
+
+### Campos
+
+| Campo | Tipo | Obrigatorio | Descricao |
+| --- | --- | --- | --- |
+| `matricula` | string | Sim | Identificador unico do aluno |
+| `nome` | string | Sim | Nome do aluno |
+| `email` | string | Sim | Email do aluno |
+
+## Exemplos De Uso
+
+Os exemplos abaixo usam PowerShell.
+
+### Verificar Se A API Esta Funcionando
+
+```powershell
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/"
+```
+
+Resposta esperada:
+
+```json
+{
+  "mensagem": "API funcionando com sucesso!",
+  "status": "ok",
+  "date": "08/07/2026, 10:00:00"
+}
+```
 
 ### Cadastrar Um Aluno
 
@@ -645,7 +383,12 @@ Resposta esperada:
 
 ```json
 {
-  "mensagem": "Cadastro realizado com sucesso!"
+  "mensagem": "Cadastro realizado com sucesso!",
+  "aluno": {
+    "matricula": "a92222",
+    "nome": "Maria Silva",
+    "email": "maria@email.com"
+  }
 }
 ```
 
@@ -655,22 +398,139 @@ Resposta esperada:
 Invoke-RestMethod -Method Get -Uri "http://localhost:3000/listar"
 ```
 
-### Buscar Um Aluno Pela Matrícula
+Resposta esperada:
+
+```json
+[
+  {
+    "matricula": "a92222",
+    "nome": "Maria Silva",
+    "email": "maria@email.com"
+  }
+]
+```
+
+Se nao houver alunos cadastrados:
+
+```json
+{
+  "mensagem": "Nenhum aluno cadastrado!"
+}
+```
+
+### Buscar Aluno Pela Matricula
 
 ```powershell
 Invoke-RestMethod -Method Get -Uri "http://localhost:3000/listar/a92222"
 ```
 
-## Testando Com Postman Ou Insomnia
+Resposta esperada:
 
-### Cadastrar Aluno
+```json
+{
+  "matricula": "a92222",
+  "nome": "Maria Silva",
+  "email": "maria@email.com"
+}
+```
 
-Configuração:
+Se a matricula nao existir:
 
-- Método: `POST`
-- URL: `http://localhost:3000/cadastrar`
-- Body: `raw`
-- Formato: `JSON`
+```json
+{
+  "mensagem": "Aluno nao encontrado!"
+}
+```
+
+### Editar Aluno Com PUT
+
+Use PUT quando quiser enviar todos os campos editaveis.
+
+```powershell
+Invoke-RestMethod -Method Put `
+  -Uri "http://localhost:3000/editar/total/a92222" `
+  -ContentType "application/json" `
+  -Body '{"nome":"Maria Souza","email":"maria.souza@email.com"}'
+```
+
+Resposta esperada:
+
+```json
+{
+  "mensagem": "Aluno atualizado com sucesso!",
+  "aluno": {
+    "matricula": "a92222",
+    "nome": "Maria Souza",
+    "email": "maria.souza@email.com"
+  }
+}
+```
+
+### Editar Aluno Com PATCH
+
+Use PATCH quando quiser enviar apenas alguns campos.
+
+Exemplo alterando apenas o nome:
+
+```powershell
+Invoke-RestMethod -Method Patch `
+  -Uri "http://localhost:3000/editar/parcial/a92222" `
+  -ContentType "application/json" `
+  -Body '{"nome":"Maria Oliveira"}'
+```
+
+Exemplo alterando apenas o email:
+
+```powershell
+Invoke-RestMethod -Method Patch `
+  -Uri "http://localhost:3000/editar/parcial/a92222" `
+  -ContentType "application/json" `
+  -Body '{"email":"maria.oliveira@email.com"}'
+```
+
+### Excluir Um Aluno
+
+```powershell
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/excluir/a92222"
+```
+
+Resposta esperada:
+
+```json
+{
+  "mensagem": "Aluno excluido com sucesso!",
+  "aluno": {
+    "matricula": "a92222",
+    "nome": "Maria Oliveira",
+    "email": "maria.oliveira@email.com"
+  }
+}
+```
+
+### Excluir Todos Os Alunos
+
+```powershell
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/excluir/todos"
+```
+
+Resposta esperada:
+
+```json
+{
+  "mensagem": "Todos os alunos foram excluidos!"
+}
+```
+
+## Como Testar No Postman, Insomnia Ou Thunder Client
+
+### Cadastro
+
+Configuracao:
+
+- metodo: `POST`;
+- URL: `http://localhost:3000/cadastrar`;
+- Body: `raw`;
+- formato: `JSON`.
 
 Corpo:
 
@@ -682,63 +542,88 @@ Corpo:
 }
 ```
 
-### Listar Alunos
+### Listagem
 
-Configuração:
+Configuracao:
 
-- Método: `GET`
-- URL: `http://localhost:3000/listar`
+- metodo: `GET`;
+- URL: `http://localhost:3000/listar`.
 
-### Buscar Por Matrícula
+### Busca Por Matricula
 
-Configuração:
+Configuracao:
 
-- Método: `GET`
-- URL: `http://localhost:3000/listar/a92222`
+- metodo: `GET`;
+- URL: `http://localhost:3000/listar/a92222`.
 
-## Status HTTP Usados
+### Edicao Total
 
-| Status | Onde Aparece | Significado |
-| --- | --- | --- |
-| `200` | Listagem e busca | A requisição deu certo |
-| `201` | Cadastro | O aluno foi criado com sucesso |
-| `400` | Cadastro com dados faltando | A requisição veio incompleta |
-| `500` | Bloco `catch` | Erro interno no servidor |
+Configuracao:
 
-## Sobre O `try/catch`
+- metodo: `PUT`;
+- URL: `http://localhost:3000/editar/total/a92222`;
+- Body: `raw`;
+- formato: `JSON`.
 
-As rotas usam `try/catch`.
+Corpo:
 
-Exemplo:
-
-```js
-try {
-  // tenta executar o código
-} catch (error) {
-  // se der erro, cai aqui
+```json
+{
+  "nome": "Maria Souza",
+  "email": "maria.souza@email.com"
 }
 ```
 
-O `try` tenta executar o código principal.
+### Edicao Parcial
 
-O `catch` captura algum erro inesperado e devolve uma resposta com status `500`.
+Configuracao:
 
-Isso evita que a aplicação simplesmente quebre sem responder nada.
+- metodo: `PATCH`;
+- URL: `http://localhost:3000/editar/parcial/a92222`;
+- Body: `raw`;
+- formato: `JSON`.
 
-## Pontos Importantes Para Iniciantes
+Corpo:
+
+```json
+{
+  "nome": "Maria Oliveira"
+}
+```
+
+### Exclusao
+
+Configuracao:
+
+- metodo: `DELETE`;
+- URL: `http://localhost:3000/excluir/a92222`.
+
+## Status HTTP Usados
+
+| Status | Significado | Onde aparece |
+| --- | --- | --- |
+| `200` | Requisicao concluida com sucesso | Listar, buscar, editar e excluir |
+| `201` | Recurso criado com sucesso | Cadastrar aluno |
+| `400` | Erro nos dados enviados pelo cliente | Campos obrigatorios ausentes ou matricula duplicada |
+| `404` | Recurso nao encontrado | Aluno nao encontrado |
+| `500` | Erro interno do servidor | Blocos `catch` |
+
+## Conceitos Importantes Para Os Alunos
 
 ### `requisicao`
 
-Representa o pedido que chegou na API.
+Representa tudo o que o cliente enviou para a API.
 
-É dela que pegamos:
+Exemplos:
 
-- Parâmetros da rota: `requisicao.params`
-- Corpo da requisição: `requisicao.body`
+```js
+requisicao.body
+requisicao.params
+```
 
 ### `resposta`
 
-Representa a resposta que a API vai devolver.
+Representa aquilo que a API vai devolver para o cliente.
 
 Exemplo:
 
@@ -746,28 +631,112 @@ Exemplo:
 resposta.status(200).json(alunos);
 ```
 
-Isso significa:
+### `requisicao.body`
 
-- Responder com status `200`.
-- Enviar os dados em formato JSON.
+Contem os dados enviados no corpo da requisicao.
+
+Normalmente usado em:
+
+- `POST`;
+- `PUT`;
+- `PATCH`.
+
+Exemplo:
+
+```json
+{
+  "nome": "Maria Silva",
+  "email": "maria@email.com"
+}
+```
+
+### `requisicao.params`
+
+Contem os parametros enviados na URL.
+
+Na rota:
+
+```text
+/listar/:matricula
+```
+
+Se o usuario acessar:
+
+```text
+/listar/a92222
+```
+
+Entao:
+
+```js
+requisicao.params.matricula
+```
+
+tera o valor:
+
+```text
+a92222
+```
 
 ### `return`
 
-Em alguns pontos aparece:
+O `return` encerra a execucao da funcao.
+
+Em controllers, usamos bastante:
 
 ```js
-return resposta.status(200).json(...)
+return resposta.status(400).json({ mensagem: "Erro" });
 ```
 
-Esse `return` faz a função parar ali.
+Isso evita que o codigo continue rodando depois que a resposta ja foi enviada.
 
-Ele evita que o restante da rota continue executando depois que a resposta já foi enviada.
+### `try/catch`
+
+O `try/catch` e usado para capturar erros inesperados.
+
+Exemplo:
+
+```js
+try {
+  // codigo principal
+} catch (error) {
+  // resposta em caso de erro
+}
+```
+
+Se algo der errado dentro do `try`, o codigo pula para o `catch`.
+
+## Por Que Separar Em Camadas?
+
+Separar o projeto em camadas deixa o codigo mais organizado.
+
+### Route
+
+A route conhece os caminhos da API.
+
+Exemplo:
+
+```js
+router.get("/listar", AlunoController.listarTodos);
+```
+
+### Controller
+
+O controller lida com requisicao e resposta.
+
+Ele valida dados, chama o model e devolve status HTTP.
+
+### Model
+
+O model lida com os dados.
+
+Hoje ele mexe em um array, mas futuramente poderia conversar com um banco de dados.
 
 ## Erros Comuns
 
-### Esquecer De Rodar `npm install`
+### Esquecer De Instalar As Dependencias
 
-Se aparecer erro dizendo que não encontrou `express` ou `dotenv`, rode:
+Se aparecer erro dizendo que nao encontrou `express` ou `dotenv`, rode:
 
 ```bash
 npm install
@@ -775,43 +744,25 @@ npm install
 
 ### Esquecer De Configurar O `.env`
 
-Confira se o arquivo `.env` existe e se está assim:
+Confira se o arquivo `.env` existe e se possui:
 
 ```env
 PORTA=3000
 ```
 
-### Enviar JSON Errado No Cadastro
+### Esquecer De Usar JSON No Body
 
-O cadastro precisa receber exatamente:
+Em rotas como `POST`, `PUT` e `PATCH`, envie o corpo como JSON.
 
-```json
-{
-  "matricula": "a92222",
-  "nome": "Maria Silva",
-  "email": "maria@email.com"
-}
-```
+No Postman ou Insomnia:
 
-Se faltar algum campo, a API retorna erro `400`.
+- escolha `Body`;
+- escolha `raw`;
+- escolha `JSON`.
 
-### Os Dados Sumiram
+### Porta Ja Esta Em Uso
 
-Isso acontece porque os alunos ficam apenas no array em memória.
-
-Quando o servidor reinicia, o array volta a ficar vazio:
-
-```js
-const alunos = [];
-```
-
-Para os dados ficarem salvos de verdade, seria necessário usar um banco de dados.
-
-### Porta Já Está Em Uso
-
-Se aparecer erro dizendo que a porta já está em uso, troque a porta no `.env`.
-
-Exemplo:
+Se a porta `3000` ja estiver em uso, altere o `.env`:
 
 ```env
 PORTA=3333
@@ -819,53 +770,46 @@ PORTA=3333
 
 Depois reinicie o servidor.
 
-## Melhorias Que Podem Ser Feitas Depois
+### Dados Sumiram Depois De Reiniciar
 
-Este projeto é simples, mas pode evoluir.
+Isso acontece porque este projeto usa um array em memoria.
 
-Algumas melhorias possíveis:
+Quando o servidor reinicia, o array volta a ficar vazio.
 
-- Não permitir duas matrículas iguais.
-- Criar uma rota para atualizar aluno.
-- Criar uma rota para deletar aluno.
-- Validar se o e-mail tem formato válido.
-- Salvar os alunos em banco de dados.
-- Separar as rotas em arquivos diferentes.
-- Criar controllers.
-- Criar services.
-- Criar testes automatizados.
+## Sugestoes De Evolucao
+
+Este projeto pode ser evoluido com:
+
+- validacao de email;
+- validacao de tamanho da matricula;
+- banco de dados real;
+- camada de services;
+- testes automatizados;
+- paginacao na listagem;
+- filtros por nome ou email;
+- documentacao com Swagger;
+- deploy em uma plataforma online.
 
 ## Resumo Final
 
-Para rodar:
+Para rodar o projeto:
 
 ```bash
 npm install
 npm start
 ```
 
-Configure o `.env`:
-
-```env
-PORTA=3000
-```
-
-Rotas:
+Principais rotas:
 
 ```text
-GET  /listar
-GET  /listar/:matricula
-POST /cadastrar
+GET     /
+GET     /listar
+GET     /listar/:matricula
+POST    /cadastrar
+PUT     /editar/total/:matricula
+PATCH   /editar/parcial/:matricula
+DELETE  /excluir/todos
+DELETE  /excluir/:matricula
 ```
 
-Exemplo de cadastro:
-
-```json
-{
-  "matricula": "a92222",
-  "nome": "Maria Silva",
-  "email": "maria@email.com"
-}
-```
-
-Essa aplicação é uma base inicial para entender como uma API funciona: ela recebe requisições, processa dados e devolve respostas em JSON.
+Este projeto e uma base para ensinar como uma API funciona por dentro: ela recebe requisicoes, processa dados, chama camadas internas e devolve respostas em JSON.
