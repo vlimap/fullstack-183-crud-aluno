@@ -23,8 +23,8 @@ class AlunoModel{
             return null
        }
 
-       aluno.nome = novoNome
-       aluno.email = novoEmail
+       aluno.nome = nome
+       aluno.email = email
 
        return aluno
     }
@@ -59,3 +59,4 @@ class AlunoModel{
 }
 
 export default AlunoModel
+

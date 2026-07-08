@@ -57,5 +57,24 @@ class AlunoController {
         resposta.status(500).json({ mensagem: "Erro ao atualizar o aluno!"})
     }
   }
-
+  static excluirTodos(requisicao, resposta){
+    try {
+      AlunoModel.excluirTodos()
+      resposta.status(200).json({mensagem: "Todos os alunos foram excluidos!"})
+    } catch (error) {
+      resposta.status(500).json({ mensagem: "Erro ao excluir todos os alunos!"})
+    }
+  }
+  static excluirPorMatricula(requisicao, resposta){
+    try {
+      // localhost:3000/listar/:params
+      const matricula = requisicao.params.matricula
+      AlunoModel.excluirPorMatricula()
+      resposta.status(200).json({mensagem: "Aluno excluido com sucesso!"})
+    } catch (error) {
+      resposta.status(500).json({ mensagem: "Erro ao excluir o  aluno!"})
+    }
+  }
 }
+
+export default AlunoController
