@@ -9,9 +9,6 @@ import AlunoModel from "../models/aluno.model.js";
 // - o controller decide o que fazer quando esse caminho e acessado
 // - o model mexe nos dados
 
-/*
-
-
 class AlunoController {
   // Controller da rota POST /cadastrar.
   static cadastrar(requisicao, resposta) {
