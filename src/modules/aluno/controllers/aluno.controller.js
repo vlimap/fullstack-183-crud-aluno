@@ -97,7 +97,7 @@ class AlunoController {
   // PUT normalmente e usado para atualizar o recurso de forma completa.
   static editarTotal(requisicao, resposta) {
     try {
-      const { matricula } = requisicao.params;
+      const  matricula  = requisicao.params.matricula;
       const { nome, email } = requisicao.body;
 
       // Como e edicao total, exigimos nome e email.
@@ -177,14 +177,12 @@ class AlunoController {
   // Controller da rota DELETE /excluir/:matricula.
   static excluirPorMatricula(requisicao, resposta) {
     try {
-      const { matricula } = requisicao.params;
+      const matricula  = requisicao.params.matricula;
 
       const aluno = AlunoModel.excluirPorMatricula(matricula);
 
       if (!aluno) {
-        return resposta
-          .status(404)
-          .json({ mensagem: "Aluno nao encontrado!" });
+        return resposta.status(404).json({ mensagem: "Aluno nao encontrado!" });
       }
 
       return resposta.status(200).json({
@@ -192,9 +190,7 @@ class AlunoController {
         aluno
       });
     } catch (error) {
-      return resposta
-        .status(500)
-        .json({ mensagem: "Erro ao excluir o aluno!", erro: error.message });
+      return resposta.status(500).json({ mensagem: "Erro ao excluir o aluno!", erro: error.message });
     }
   }
 }

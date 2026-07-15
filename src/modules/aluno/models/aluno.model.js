@@ -1,5 +1,5 @@
-// Importa o array de alunos que esta simulando nosso banco de dados.
-import alunos from "../../../config/database.js";
+// Importa a conexão do banco pg
+import conexao from "../../../config/database.js";
 
 // O Model e a camada responsavel por lidar diretamente com os dados.
 //
@@ -13,48 +13,45 @@ import alunos from "../../../config/database.js";
 // Chamamos direto assim: AlunoModel.cadastrar(...).
 class AlunoModel {
   // Cadastra um novo aluno no array.
-  static cadastrar(matricula, nome, email) {
-    // Cria um objeto com as informacoes recebidas.
-    const aluno = { matricula, nome, email };
-
-    // Adiciona o aluno no final do array.
-    alunos.push(aluno);
-
-    // Retorna o aluno criado para quem chamou o metodo.
-    return aluno;
+  static async cadastrar(matricula, nome, email) {
+    const dados = [matricula, nome, email]
+    const query = `insert into aluno(matricula, nome, email) values ($1, $2, $3) RETURNING *`
+    const resultado = await conexao.query(query, dados)
+    return resultado.rows[0]
   }
 
   // Retorna todos os alunos cadastrados.
-  static listarTodos() {
-    return alunos;
+  static async listarTodos() {
+    const query = `select * from aluno`
+    const resultado = await conexao.query(query)
+    return resultado;
   }
 
   // Busca um aluno pela matricula.
-  static listarPorMatricula(matricula) {
-    // O find percorre o array e retorna o primeiro aluno que satisfaz a condicao.
-    // Se nenhum aluno for encontrado, o find retorna undefined.
-    const aluno = alunos.find((aluno) => aluno.matricula === matricula);
-
-    return aluno;
+  static async listarPorMatricula(matricula) {
+    const dados = [matricula]
+    const query = `select * from aluno where matricula = $1`
+    const resultado = await conexao.query(query, dados)
+    return resultado
   }
 
   // Edita todos os dados editaveis de um aluno.
   // Nesta API, usamos PUT quando nome e email precisam ser enviados.
-  static editarTotal(matricula, nome, email) {
+  static async editarTotal(matricula, nome, email) {
     // Primeiro procuramos o aluno pela matricula.
-    const aluno = AlunoModel.listarPorMatricula(matricula);
+    const aluno = await AlunoModel.listarPorMatricula(matricula);
 
     // Se o aluno nao existir, retornamos null para o controller tratar.
-    if (!aluno) {
+    if (aluno.length === 0) {
       return null;
     }
 
-    // Atualiza os dados do aluno encontrado.
-    aluno.nome = nome;
-    aluno.email = email;
-
-    // Retorna o aluno ja atualizado.
-    return aluno;
+    const dados = [matricula, nome, email]
+    const query = `update aluno 
+        set nome = $2, email = $3
+        where matricula = $1 returning *;`
+    const resultado = await conexao.query(query, dados)
+    return resultado.rows[0]
   }
 
   // Edita apenas os campos enviados.
