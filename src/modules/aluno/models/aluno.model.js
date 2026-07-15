@@ -56,47 +56,35 @@ class AlunoModel {
 
   // Edita apenas os campos enviados.
   // Nesta API, usamos PATCH quando o usuario pode enviar somente nome ou somente email.
-  static editarParcial(matricula, nome, email) {
-    const aluno = AlunoModel.listarPorMatricula(matricula);
-
-    if (!aluno) {
+  static async editarParcial(matricula, nome, email) {
+    const aluno = await AlunoModel.listarPorMatricula(matricula);
+    if (aluno.length === 0) {
       return null;
     }
-
-    // Se nome foi enviado, atualiza o nome.
-    // Se nao foi enviado, mantem o nome antigo.
-    aluno.nome = nome || aluno.nome;
-
-    // Se email foi enviado, atualiza o email.
-    // Se nao foi enviado, mantem o email antigo.
-    aluno.email = email || aluno.email;
-
-    return aluno;
+    const dados = [matricula, nome, email]
+    const query = `update aluno 
+        set nome = coalesce($2, nome), email = coalesce($3, email)
+        where matricula = $1 returning *;`
+    const resultado = await conexao.query(query, dados)
+    return resultado.rows[0]
   }
 
   // Exclui um aluno pela matricula.
-  static excluirPorMatricula(matricula) {
-    // findIndex retorna a posicao do aluno no array.
-    // Se nao encontrar, retorna -1.
-    const index = alunos.findIndex((aluno) => aluno.matricula === matricula);
-
-    if (index === -1) {
+  static async excluirPorMatricula(matricula) {
+    const aluno = await AlunoModel.listarPorMatricula(matricula);
+    if (aluno.length === 0) {
       return null;
     }
-
-    // splice remove itens do array.
-    // Aqui removemos 1 item na posicao encontrada.
-    const alunoRemovido = alunos.splice(index, 1);
-
-    // splice retorna um array com os itens removidos.
-    // Como removemos apenas um aluno, retornamos a posicao 0.
-    return alunoRemovido[0];
+    const dados = [matricula]
+    const query = `delete from aluno where matricula = $1 returning *`
+    const resultado = await conexao.query(query, dados)
+    return resultado.rows[0]
   }
 
   // Exclui todos os alunos do array.
-  static excluirTodos() {
-    // Definir length como 0 limpa o array original.
-    alunos.length = 0;
+  static async excluirTodos() {
+    const query =`delete from aluno returning *`
+    
   }
 }
 
