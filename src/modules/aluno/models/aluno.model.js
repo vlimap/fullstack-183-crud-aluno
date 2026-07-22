@@ -17,14 +17,14 @@ class AlunoModel {
     const dados = [matricula, nome, email]
     const query = `insert into aluno(matricula, nome, email) values ($1, $2, $3) RETURNING *`
     const resultado = await conexao.query(query, dados)
-    return resultado.rows[0]
+    return resultado.rows
   }
 
   // Retorna todos os alunos cadastrados.
   static async listarTodos() {
     const query = `select * from aluno`
     const resultado = await conexao.query(query)
-    return resultado;
+    return resultado.rows;
   }
 
   // Busca um aluno pela matricula.
@@ -32,7 +32,7 @@ class AlunoModel {
     const dados = [matricula]
     const query = `select * from aluno where matricula = $1`
     const resultado = await conexao.query(query, dados)
-    return resultado
+    return resultado.rows
   }
 
   // Edita todos os dados editaveis de um aluno.
@@ -51,7 +51,7 @@ class AlunoModel {
         set nome = $2, email = $3
         where matricula = $1 returning *;`
     const resultado = await conexao.query(query, dados)
-    return resultado.rows[0]
+    return resultado.rows
   }
 
   // Edita apenas os campos enviados.
@@ -66,7 +66,7 @@ class AlunoModel {
         set nome = coalesce($2, nome), email = coalesce($3, email)
         where matricula = $1 returning *;`
     const resultado = await conexao.query(query, dados)
-    return resultado.rows[0]
+    return resultado.rows
   }
 
   // Exclui um aluno pela matricula.
@@ -78,13 +78,14 @@ class AlunoModel {
     const dados = [matricula]
     const query = `delete from aluno where matricula = $1 returning *`
     const resultado = await conexao.query(query, dados)
-    return resultado.rows[0]
+    return resultado.rows
   }
 
   // Exclui todos os alunos do array.
   static async excluirTodos() {
     const query =`delete from aluno returning *`
-    
+    const resultado = await conexao.query(query)
+    return resultado.rows
   }
 }
 

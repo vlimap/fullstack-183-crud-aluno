@@ -11,7 +11,7 @@ import AlunoModel from "../models/aluno.model.js";
 
 class AlunoController {
   // Controller da rota POST /cadastrar.
-  static cadastrar(requisicao, resposta) {
+  static async cadastrar(requisicao, resposta) {
     try {
       // Pega os dados enviados no corpo da requisicao.
       // Exemplo de body:
@@ -25,23 +25,12 @@ class AlunoController {
           .json({ mensagem: "Todos os campos sao obrigatorios!" });
       }
 
-      // Verifica se ja existe um aluno com a mesma matricula.
-      // Isso evita cadastrar duas vezes a mesma matricula.
-      const alunoJaExiste = AlunoModel.listarPorMatricula(matricula);
-
-      if (alunoJaExiste) {
-        return resposta
-          .status(400)
-          .json({ mensagem: "Ja existe um aluno com essa matricula!" });
-      }
-
       // Chama o model para salvar o aluno.
-      const aluno = AlunoModel.cadastrar(matricula, nome, email);
+      await AlunoModel.cadastrar(matricula, nome, email);
 
       // Status 201 significa que um recurso foi criado com sucesso.
       return resposta.status(201).json({
-        mensagem: "Cadastro realizado com sucesso!",
-        aluno
+        mensagem: "Cadastro realizado com sucesso!"
       });
     } catch (error) {
       return resposta
@@ -51,9 +40,9 @@ class AlunoController {
   }
 
   // Controller da rota GET /listar.
-  static listarTodos(requisicao, resposta) {
+  static async listarTodos(requisicao, resposta) {
     try {
-      const alunos = AlunoModel.listarTodos();
+      const alunos = await AlunoModel.listarTodos();
 
       // Se o array estiver vazio, avisamos que nao ha alunos cadastrados.
       if (alunos.length === 0) {
@@ -62,7 +51,7 @@ class AlunoController {
           .json({ mensagem: "Nenhum aluno cadastrado!" });
       }
 
-      return resposta.status(200).json(alunos);
+      resposta.status(200).json(alunos);
     } catch (error) {
       return resposta
         .status(500)
@@ -71,13 +60,13 @@ class AlunoController {
   }
 
   // Controller da rota GET /listar/:matricula.
-  static listarPorMatricula(requisicao, resposta) {
+  static async listarPorMatricula(requisicao, resposta) {
     try {
       // req.params contem os parametros que vem na URL.
       // Exemplo: em /listar/a92222, matricula recebe "a92222".
       const { matricula } = requisicao.params;
 
-      const aluno = AlunoModel.listarPorMatricula(matricula);
+      const aluno = await AlunoModel.listarPorMatricula(matricula);
 
       if (!aluno) {
         return resposta
@@ -133,13 +122,7 @@ class AlunoController {
       const { matricula } = requisicao.params;
       const { nome, email } = requisicao.body;
 
-      // Na edicao parcial, pelo menos um campo precisa ser enviado.
-      if (!nome && !email) {
-        return resposta
-          .status(400)
-          .json({ mensagem: "Informe nome ou email para atualizar!" });
-      }
-
+      
       const aluno = AlunoModel.editarParcial(matricula, nome, email);
 
       if (!aluno) {

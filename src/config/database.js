@@ -14,7 +14,12 @@ const conexao = new Pool({
   database: process.env.PGDATABASE,
 })
 
-console.log(await conexao.query('SELECT 1+1'))
+try {
+  await conexao.query(`select 1+1`)
+  console.log("Conexão realizada com sucesso!")
+} catch (error) {
+  console.error({mensagem: "Erro ao iniciar banco", erro: error.message})
+}
 
 export default conexao;
 
