@@ -4,9 +4,10 @@ import express from "express";
 // Importa o dotenv, que permite ler variaveis de ambiente do arquivo .env.
 import dotenv from "dotenv";
 
-// Importa as rotas do modulo de alunos.
+// Importa as rotas do modulo de alunos e admin
 // Essas rotas ficam separadas para deixar o index.js mais limpo.
 import router from "./modules/aluno/routes/aluno.route.js";
+import routerAdmin from "./modules/administrador/routes/administrador.route.js";
 
 // Carrega as variaveis do arquivo .env para dentro de process.env.
 // Exemplo: se no .env existir PORTA=3000, poderemos acessar process.env.PORTA.
@@ -23,7 +24,8 @@ app.use(express.json());
 // Registra as rotas do modulo aluno na aplicacao.
 // Como nao foi usado prefixo, as rotas ficam diretamente em:
 // /listar, /cadastrar, /editar/total/:matricula, etc.
-app.use(router);
+app.use("/aluno",router);
+app.use("/admin",routerAdmin);
 
 // Busca a porta definida no arquivo .env.
 // Se PORTA=3000, a API vai rodar em http://localhost:3000.
