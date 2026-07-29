@@ -6,19 +6,19 @@ class AdministradorModel{
         const query = `insert into admins(nome, email, senha) 
                         values ($1, $2, $3) returning *`
         const resultado = await conexao.query(query, dados)
-        return resultado.rows
+        return resultado.rows[0]
     }
     static async contarAdmins(){
         const query = `select count(*) from admins`
         const resultado = await conexao.query(query)
-        return Number(resultado.rows)
+        return Number(resultado.rows[0].count)
     }
     static async buscarPorEmail(email){
         const dados = [email]
         const query = `select * from admins
                         where email = $1`
         const resultado = await conexao.query(query, dados)
-        return resultado.rows
+        return resultado.rows[0]
     }
 
 }

@@ -25,7 +25,7 @@ Exemplo:
 
 ```text
 Cliente faz uma requisicao:
-GET http://localhost:3000/listar
+GET http://localhost:3000/aluno/listar
 
 Servidor responde:
 [
@@ -69,7 +69,7 @@ PORTA=3000
 
 ## Como Os Dados Sao Salvos
 
-Este projeto usa um array para simular um banco de dados.
+Este projeto usa PostgreSQL de verdade.
 
 O arquivo responsavel por isso e:
 
@@ -77,19 +77,13 @@ O arquivo responsavel por isso e:
 src/config/database.js
 ```
 
-Dentro dele existe:
-
-```js
-const alunos = [];
-```
-
-Isso significa que os alunos ficam salvos apenas na memoria do servidor.
+Dentro dele e criada uma `Pool` do pacote `pg`, que faz a conexao com o banco.
 
 Importante:
 
-- se o servidor estiver rodando, os dados continuam no array;
-- se o servidor for reiniciado, os dados somem;
-- isso e esperado neste projeto, porque ele ainda nao usa banco de dados real.
+- os dados ficam persistidos no banco;
+- reiniciar a aplicacao nao apaga os registros;
+- o sistema depende das variaveis de ambiente corretas no arquivo `.env`.
 
 ## Estrutura Do Projeto
 
@@ -134,13 +128,7 @@ Ele faz quatro coisas importantes:
 
 ### `src/config/database.js`
 
-Simula o banco de dados da aplicacao.
-
-Neste projeto, o "banco" e apenas um array:
-
-```js
-const alunos = [];
-```
+Cria a conexao com o PostgreSQL e faz uma verificacao simples quando a aplicacao sobe.
 
 ### `src/modules/aluno/routes/aluno.route.js`
 
@@ -154,7 +142,7 @@ router.get("/listar", AlunoController.listarTodos);
 
 Essa linha significa:
 
-- quando alguem acessar `GET /listar`;
+- quando alguem acessar `GET /aluno/listar`;
 - o Express deve chamar `AlunoController.listarTodos`.
 
 ### `src/modules/aluno/controllers/aluno.controller.js`
@@ -170,11 +158,11 @@ O controller:
 
 ### `src/modules/aluno/models/aluno.model.js`
 
-Manipula os dados.
+Manipula os dados no PostgreSQL.
 
 O model:
 
-- cadastra aluno no array;
+- cadastra aluno;
 - procura aluno;
 - edita aluno;
 - remove aluno.
@@ -186,7 +174,7 @@ Quando o usuario cadastra um aluno, o fluxo e este:
 ```text
 Cliente
   |
-  | POST /cadastrar
+  | POST /aluno/cadastrar
   v
 Rota
   |
@@ -264,13 +252,21 @@ http://localhost:3000
 | Metodo | Rota | Descricao |
 | --- | --- | --- |
 | `GET` | `/` | Verifica se a API esta funcionando |
-| `GET` | `/listar` | Lista todos os alunos |
-| `GET` | `/listar/:matricula` | Busca um aluno pela matricula |
-| `POST` | `/cadastrar` | Cadastra um aluno |
-| `PUT` | `/editar/total/:matricula` | Edita nome e email de um aluno |
-| `PATCH` | `/editar/parcial/:matricula` | Edita nome ou email de um aluno |
-| `DELETE` | `/excluir/todos` | Exclui todos os alunos |
-| `DELETE` | `/excluir/:matricula` | Exclui um aluno pela matricula |
+| `GET` | `/aluno/listar` | Lista todos os alunos |
+| `GET` | `/aluno/listar/:matricula` | Busca um aluno pela matricula |
+| `POST` | `/aluno/cadastrar` | Cadastra um aluno |
+| `PUT` | `/aluno/editar/total/:matricula` | Edita nome e email de um aluno |
+| `PATCH` | `/aluno/editar/parcial/:matricula` | Edita nome ou email de um aluno |
+| `DELETE` | `/aluno/excluir/todos` | Exclui todos os alunos |
+| `DELETE` | `/aluno/excluir/:matricula` | Exclui um aluno pela matricula |
+
+## Rotas Do Administrador
+
+| Metodo | Rota | Descricao |
+| --- | --- | --- |
+| `POST` | `/admin/cadastrar` | Cadastra o primeiro administrador |
+| `POST` | `/admin/login` | Autentica o administrador e gera JWT |
+| `GET` | `/admin/perfil/:email?` | Retorna os dados do administrador autenticado |
 
 ## Explicando Os Metodos HTTP
 
@@ -281,8 +277,8 @@ Usado para buscar informacoes.
 Exemplos:
 
 ```text
-GET /listar
-GET /listar/a92222
+GET /aluno/listar
+GET /aluno/listar/a92222
 ```
 
 ### POST
@@ -292,7 +288,7 @@ Usado para criar um novo recurso.
 Exemplo:
 
 ```text
-POST /cadastrar
+POST /aluno/cadastrar
 ```
 
 ### PUT
@@ -304,7 +300,7 @@ Neste projeto, o PUT exige `nome` e `email`.
 Exemplo:
 
 ```text
-PUT /editar/total/a92222
+PUT /aluno/editar/total/a92222
 ```
 
 ### PATCH
@@ -316,7 +312,7 @@ Neste projeto, o PATCH permite enviar apenas `nome`, apenas `email` ou os dois.
 Exemplo:
 
 ```text
-PATCH /editar/parcial/a92222
+PATCH /aluno/editar/parcial/a92222
 ```
 
 ### DELETE
@@ -326,8 +322,8 @@ Usado para excluir um recurso.
 Exemplos:
 
 ```text
-DELETE /excluir/a92222
-DELETE /excluir/todos
+DELETE /aluno/excluir/a92222
+DELETE /aluno/excluir/todos
 ```
 
 ## Modelo De Aluno
@@ -374,7 +370,7 @@ Resposta esperada:
 
 ```powershell
 Invoke-RestMethod -Method Post `
-  -Uri "http://localhost:3000/cadastrar" `
+  -Uri "http://localhost:3000/aluno/cadastrar" `
   -ContentType "application/json" `
   -Body '{"matricula":"a92222","nome":"Maria Silva","email":"maria@email.com"}'
 ```
@@ -395,7 +391,7 @@ Resposta esperada:
 ### Listar Todos Os Alunos
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri "http://localhost:3000/listar"
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/aluno/listar"
 ```
 
 Resposta esperada:
@@ -421,7 +417,7 @@ Se nao houver alunos cadastrados:
 ### Buscar Aluno Pela Matricula
 
 ```powershell
-Invoke-RestMethod -Method Get -Uri "http://localhost:3000/listar/a92222"
+Invoke-RestMethod -Method Get -Uri "http://localhost:3000/aluno/listar/a92222"
 ```
 
 Resposta esperada:
@@ -448,7 +444,7 @@ Use PUT quando quiser enviar todos os campos editaveis.
 
 ```powershell
 Invoke-RestMethod -Method Put `
-  -Uri "http://localhost:3000/editar/total/a92222" `
+  -Uri "http://localhost:3000/aluno/editar/total/a92222" `
   -ContentType "application/json" `
   -Body '{"nome":"Maria Souza","email":"maria.souza@email.com"}'
 ```
@@ -474,7 +470,7 @@ Exemplo alterando apenas o nome:
 
 ```powershell
 Invoke-RestMethod -Method Patch `
-  -Uri "http://localhost:3000/editar/parcial/a92222" `
+  -Uri "http://localhost:3000/aluno/editar/parcial/a92222" `
   -ContentType "application/json" `
   -Body '{"nome":"Maria Oliveira"}'
 ```
@@ -483,7 +479,7 @@ Exemplo alterando apenas o email:
 
 ```powershell
 Invoke-RestMethod -Method Patch `
-  -Uri "http://localhost:3000/editar/parcial/a92222" `
+  -Uri "http://localhost:3000/aluno/editar/parcial/a92222" `
   -ContentType "application/json" `
   -Body '{"email":"maria.oliveira@email.com"}'
 ```
@@ -491,7 +487,7 @@ Invoke-RestMethod -Method Patch `
 ### Excluir Um Aluno
 
 ```powershell
-Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/excluir/a92222"
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/aluno/excluir/a92222"
 ```
 
 Resposta esperada:
@@ -510,7 +506,7 @@ Resposta esperada:
 ### Excluir Todos Os Alunos
 
 ```powershell
-Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/excluir/todos"
+Invoke-RestMethod -Method Delete -Uri "http://localhost:3000/aluno/excluir/todos"
 ```
 
 Resposta esperada:
@@ -528,7 +524,7 @@ Resposta esperada:
 Configuracao:
 
 - metodo: `POST`;
-- URL: `http://localhost:3000/cadastrar`;
+- URL: `http://localhost:3000/aluno/cadastrar`;
 - Body: `raw`;
 - formato: `JSON`.
 
@@ -547,21 +543,21 @@ Corpo:
 Configuracao:
 
 - metodo: `GET`;
-- URL: `http://localhost:3000/listar`.
+- URL: `http://localhost:3000/aluno/listar`.
 
 ### Busca Por Matricula
 
 Configuracao:
 
 - metodo: `GET`;
-- URL: `http://localhost:3000/listar/a92222`.
+- URL: `http://localhost:3000/aluno/listar/a92222`.
 
 ### Edicao Total
 
 Configuracao:
 
 - metodo: `PUT`;
-- URL: `http://localhost:3000/editar/total/a92222`;
+- URL: `http://localhost:3000/aluno/editar/total/a92222`;
 - Body: `raw`;
 - formato: `JSON`.
 
@@ -579,7 +575,7 @@ Corpo:
 Configuracao:
 
 - metodo: `PATCH`;
-- URL: `http://localhost:3000/editar/parcial/a92222`;
+- URL: `http://localhost:3000/aluno/editar/parcial/a92222`;
 - Body: `raw`;
 - formato: `JSON`.
 
@@ -596,7 +592,7 @@ Corpo:
 Configuracao:
 
 - metodo: `DELETE`;
-- URL: `http://localhost:3000/excluir/a92222`.
+- URL: `http://localhost:3000/aluno/excluir/a92222`.
 
 ## Status HTTP Usados
 
@@ -657,13 +653,13 @@ Contem os parametros enviados na URL.
 Na rota:
 
 ```text
-/listar/:matricula
+/aluno/listar/:matricula
 ```
 
 Se o usuario acessar:
 
 ```text
-/listar/a92222
+/aluno/listar/a92222
 ```
 
 Entao:
@@ -736,7 +732,7 @@ Hoje ele mexe em um array, mas futuramente poderia conversar com um banco de dad
 
 ### Esquecer De Instalar As Dependencias
 
-Se aparecer erro dizendo que nao encontrou `express` ou `dotenv`, rode:
+Se aparecer erro dizendo que nao encontrou `express`, `dotenv`, `pg`, `bcryptjs` ou `jsonwebtoken`, rode:
 
 ```bash
 npm install
@@ -772,9 +768,9 @@ Depois reinicie o servidor.
 
 ### Dados Sumiram Depois De Reiniciar
 
-Isso acontece porque este projeto usa um array em memoria.
+Se isso acontecer, verifique a conexao com o PostgreSQL e as variaveis do `.env`.
 
-Quando o servidor reinicia, o array volta a ficar vazio.
+Quando o banco nao responde, a API nao consegue persistir nem recuperar os registros.
 
 ## Sugestoes De Evolucao
 
@@ -803,13 +799,16 @@ Principais rotas:
 
 ```text
 GET     /
-GET     /listar
-GET     /listar/:matricula
-POST    /cadastrar
-PUT     /editar/total/:matricula
-PATCH   /editar/parcial/:matricula
-DELETE  /excluir/todos
-DELETE  /excluir/:matricula
+GET     /aluno/listar
+GET     /aluno/listar/:matricula
+POST    /aluno/cadastrar
+PUT     /aluno/editar/total/:matricula
+PATCH   /aluno/editar/parcial/:matricula
+DELETE  /aluno/excluir/todos
+DELETE  /aluno/excluir/:matricula
+POST    /admin/cadastrar
+POST    /admin/login
+GET     /admin/perfil/:email?
 ```
 
 Este projeto e uma base para ensinar como uma API funciona por dentro: ela recebe requisicoes, processa dados, chama camadas internas e devolve respostas em JSON.

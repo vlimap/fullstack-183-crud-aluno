@@ -8,6 +8,6 @@ routerAdmin.post("/cadastrar", AdministradorController.cadastrar)
 routerAdmin.post("/login", AdministradorController.login)
 
 // rota privada
-routerAdmin.get("/perfil/:email", AutenticacaoMiddleware.autenticar, AdministradorController.perfil)
+routerAdmin.get("/perfil/:email?", AutenticacaoMiddleware.autenticar, AdministradorController.perfil)
 
 export default routerAdmin

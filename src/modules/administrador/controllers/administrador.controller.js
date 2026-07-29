@@ -25,11 +25,11 @@ class AdministradorController{
             if(!regexEmail.test(email)){
                 return resposta.status(403).json({mensagem: "E-mail invalido. Por favor, forneça um e-mail valido!"})
             }
+            // Nunca salvamos senha pura no banco; primeiro criamos o hash.
             const salt = bcrypt.genSaltSync(10);
             const hashSenha = bcrypt.hashSync(senha, salt);
-            //sdfdgndjgkjsdbgjsgbsdghdsjs
-            await AdministradorModel.cadastrar(nome, email, hashSenha)
-            return resposta.status(201).json({mensagem: "Usuario administrador criado com sucesso!"})
+            const administrador = await AdministradorModel.cadastrar(nome, email, hashSenha)
+            return resposta.status(201).json({mensagem: "Usuario administrador criado com sucesso!", administrador})
         } catch (error) {
             resposta.status(500).json({mensagem: "Erro ao cadastrar administrador!", erro: error.message})
         }
@@ -41,7 +41,7 @@ class AdministradorController{
                 return resposta.status(403).json({mensagem: "Forneça o e-mail e senha para login!"})
             }
             const administrador = await AdministradorModel.buscarPorEmail(email)
-            if(administrador.length === 0){
+            if(!administrador){
                 return resposta.status(400).json({mensagem:"Usuario não encontrado!"})
             }
             if(administrador.ativo === false){
@@ -68,11 +68,18 @@ class AdministradorController{
             resposta.status(500).json({mensagem: "Erro interno ao efetuar login!", erro: error.message})
         }
     }
-    static async perfil(requicisao, resposta){
+    static async perfil(requisicao, resposta){
         try {
-            const administrador = await AdministradorModel.buscarPorEmail(requisicao.administrador.email)
-            if(administrador.length === 0){
-                return resposta.status(409).json({mensagem: "Usuario precisa fazer login!"})
+            // O middleware injeta o payload validado em requisicao.usuario.
+            const emailDoToken = requisicao.usuario?.email
+
+            if(!emailDoToken){
+                return resposta.status(401).json({mensagem: "Usuario precisa fazer login!"})
+            }
+
+            const administrador = await AdministradorModel.buscarPorEmail(emailDoToken)
+            if(!administrador){
+                return resposta.status(404).json({mensagem: "Usuario nao encontrado!"})
             }
             resposta.status(200).json(administrador)
         } catch (error) {

@@ -26,11 +26,12 @@ class AlunoController {
       }
 
       // Chama o model para salvar o aluno.
-      await AlunoModel.cadastrar(matricula, nome, email);
+      const alunoCadastrado = await AlunoModel.cadastrar(matricula, nome, email);
 
       // Status 201 significa que um recurso foi criado com sucesso.
       return resposta.status(201).json({
-        mensagem: "Cadastro realizado com sucesso!"
+        mensagem: "Cadastro realizado com sucesso!",
+        aluno: alunoCadastrado
       });
     } catch (error) {
       return resposta
@@ -51,7 +52,7 @@ class AlunoController {
           .json({ mensagem: "Nenhum aluno cadastrado!" });
       }
 
-      resposta.status(200).json(alunos);
+      return resposta.status(200).json(alunos);
     } catch (error) {
       return resposta
         .status(500)
@@ -84,9 +85,9 @@ class AlunoController {
 
   // Controller da rota PUT /editar/total/:matricula.
   // PUT normalmente e usado para atualizar o recurso de forma completa.
-  static editarTotal(requisicao, resposta) {
+  static async editarTotal(requisicao, resposta) {
     try {
-      const  matricula  = requisicao.params.matricula;
+      const { matricula } = requisicao.params;
       const { nome, email } = requisicao.body;
 
       // Como e edicao total, exigimos nome e email.
@@ -96,7 +97,7 @@ class AlunoController {
           .json({ mensagem: "Nome e email sao obrigatorios para edicao total!" });
       }
 
-      const aluno = AlunoModel.editarTotal(matricula, nome, email);
+      const aluno = await AlunoModel.editarTotal(matricula, nome, email);
 
       if (!aluno) {
         return resposta
@@ -117,13 +118,18 @@ class AlunoController {
 
   // Controller da rota PATCH /editar/parcial/:matricula.
   // PATCH normalmente e usado para atualizar apenas parte do recurso.
-  static editarParcial(requisicao, resposta) {
+  static async editarParcial(requisicao, resposta) {
     try {
       const { matricula } = requisicao.params;
       const { nome, email } = requisicao.body;
 
-      
-      const aluno = AlunoModel.editarParcial(matricula, nome, email);
+      if (!nome && !email) {
+        return resposta.status(400).json({
+          mensagem: "Informe ao menos um campo para edicao parcial!"
+        });
+      }
+
+      const aluno = await AlunoModel.editarParcial(matricula, nome, email);
 
       if (!aluno) {
         return resposta
@@ -143,13 +149,16 @@ class AlunoController {
   }
 
   // Controller da rota DELETE /excluir/todos.
-  static excluirTodos(requisicao, resposta) {
+  static async excluirTodos(requisicao, resposta) {
     try {
-      AlunoModel.excluirTodos();
+      const alunosExcluidos = await AlunoModel.excluirTodos();
 
       return resposta
         .status(200)
-        .json({ mensagem: "Todos os alunos foram excluidos!" });
+        .json({
+          mensagem: "Todos os alunos foram excluidos!",
+          alunos: alunosExcluidos
+        });
     } catch (error) {
       return resposta
         .status(500)
@@ -158,11 +167,11 @@ class AlunoController {
   }
 
   // Controller da rota DELETE /excluir/:matricula.
-  static excluirPorMatricula(requisicao, resposta) {
+  static async excluirPorMatricula(requisicao, resposta) {
     try {
-      const matricula  = requisicao.params.matricula;
+      const { matricula } = requisicao.params;
 
-      const aluno = AlunoModel.excluirPorMatricula(matricula);
+      const aluno = await AlunoModel.excluirPorMatricula(matricula);
 
       if (!aluno) {
         return resposta.status(404).json({ mensagem: "Aluno nao encontrado!" });

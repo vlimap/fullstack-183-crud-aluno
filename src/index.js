@@ -21,11 +21,10 @@ const app = express();
 // Sem essa linha, requisicao.body poderia vir undefined em rotas POST, PUT e PATCH.
 app.use(express.json());
 
-// Registra as rotas do modulo aluno na aplicacao.
-// Como nao foi usado prefixo, as rotas ficam diretamente em:
-// /listar, /cadastrar, /editar/total/:matricula, etc.
-app.use("/aluno",router);
-app.use("/admin",routerAdmin);
+// Registra as rotas da API com prefixos para deixar o caminho mais claro.
+// Exemplo: GET /aluno/listar e POST /admin/login.
+app.use("/aluno", router);
+app.use("/admin", routerAdmin);
 
 // Busca a porta definida no arquivo .env.
 // Se PORTA=3000, a API vai rodar em http://localhost:3000.
