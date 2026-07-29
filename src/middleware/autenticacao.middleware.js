@@ -57,8 +57,7 @@ class AutenticacaoMiddleware {
             }
 
             requisicao.usuario = usuario;
-            requisicao.administrador = usuario;
-
+            
             return proximo();
         });
     }
