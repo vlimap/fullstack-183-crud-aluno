@@ -28,6 +28,12 @@ class AdministradorModel {
         const resultado = await conexao.query(query);
         return Number(resultado.rows[0].count);
     }
+    static async verificaAdminsAtivos(){
+        const query = `select count(*) from admins
+        where ativo = true`;
+        const resultado = await conexao.query(query);
+        return Number(resultado.rows[0].count);
+    }
 
     /**
      * Esta consulta e usada no login e precisa trazer o hash da senha
@@ -37,8 +43,7 @@ class AdministradorModel {
     static async buscarPorEmail(email) {
         const dados = [email];
         const query = `
-            select id, nome, email, senha, ativo, criado_em
-            from admins
+            select id, nome, email, senha, ativo, criado_em from admins
             where email = $1
         `;
         const resultado = await conexao.query(query, dados);
@@ -52,8 +57,7 @@ class AdministradorModel {
     static async buscarPerfilPorId(id) {
         const dados = [id];
         const query = `
-            select id, nome, email, ativo, criado_em
-            from admins
+            select id, nome, email from admins
             where id = $1
         `;
         const resultado = await conexao.query(query, dados);

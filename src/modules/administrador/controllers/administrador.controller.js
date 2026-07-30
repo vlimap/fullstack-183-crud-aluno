@@ -20,13 +20,13 @@ class AdministradorController {
                 });
             }
 
-            const totalAdmin = await AdministradorModel.contarAdmins();
-            if (totalAdmin > 0) {
+            const totalAdmin = await AdministradorModel.verificaAdminsAtivos();
+            if (totalAdmin > 0 ) {
                 return resposta.status(409).json({
-                    mensagem: "Administrador ja cadastrado!"
+                    mensagem: "Existe um administrador cadastrado e ativo no sistema!"
                 });
             }
-
+            
             if (senha.length < 8) {
                 return resposta.status(400).json({
                     mensagem: "A senha deve ter no minimo 8 caracteres!"
@@ -121,7 +121,7 @@ class AdministradorController {
                 },
                 process.env.JWT_SECRET,
                 {
-                    expiresIn: process.env.JWT_TEMPO_EXPIRACAO || "1h"
+                    expiresIn: process.env.JWT_TEMPO_EXPIRACAO
                 }
             );
 
@@ -146,7 +146,7 @@ class AdministradorController {
      */
     static async perfil(requisicao, resposta) {
         try {
-            const idDoToken = requisicao.administrador.id;
+            const idDoToken = requisicao.usuario.id;
             const administrador = await AdministradorModel.buscarPerfilPorId(idDoToken);
 
             if (!administrador) {

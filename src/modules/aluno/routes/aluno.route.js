@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Rota para listar todos os alunos.
 // Metodo GET e usado para buscar dados.
-router.get("/listar", AutenticacaoMiddleware.autenticar, AlunoController.listarTodos);
+router.get("/listar", AutenticacaoMiddleware.autenticar,AutenticacaoMiddleware.autorizar['professor','pedagogico'] , AlunoController.listarTodos);
 
 // Rota para listar um aluno especifico pela matricula.
 // O trecho :matricula e um parametro de rota.
