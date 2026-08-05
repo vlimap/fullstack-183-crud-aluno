@@ -1,0 +1,282 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-08-04T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:2024.5.0",
+  "resources": [
+    {
+      "_id": "wrk_crud_jwt_admin_alunos",
+      "parentId": null,
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "CRUD JWT Admin Alunos",
+      "description": "Coleção com as rotas de administrador e alunos da API",
+      "scope": "collection",
+      "_type": "workspace"
+    },
+    {
+      "_id": "fld_admin",
+      "parentId": "wrk_crud_jwt_admin_alunos",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "Admin",
+      "description": "Rotas públicas e privadas do módulo de administrador",
+      "_type": "request_group"
+    },
+    {
+      "_id": "fld_aluno",
+      "parentId": "wrk_crud_jwt_admin_alunos",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "Aluno",
+      "description": "Rotas protegidas do módulo de alunos",
+      "_type": "request_group"
+    },
+    {
+      "_id": "req_healthcheck",
+      "parentId": "wrk_crud_jwt_admin_alunos",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "GET /",
+      "description": "Verifica se a API está respondendo",
+      "url": "http://localhost:3000/",
+      "method": "GET",
+      "headers": [],
+      "_type": "request"
+    },
+    {
+      "_id": "req_admin_cadastrar",
+      "parentId": "fld_admin",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "POST /admin/cadastrar",
+      "description": "Cadastro inicial do administrador",
+      "url": "http://localhost:3000/admin/cadastrar",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Admin Geral\",\n  \"email\": \"admin@email.com\",\n  \"senha\": \"Senha@123\"\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_admin_login",
+      "parentId": "fld_admin",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "POST /admin/login",
+      "description": "Autenticação do administrador e obtenção do token JWT",
+      "url": "http://localhost:3000/admin/login",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@email.com\",\n  \"senha\": \"Senha@123\"\n}"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_admin_perfil",
+      "parentId": "fld_admin",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "GET /admin/perfil",
+      "description": "Retorna o perfil do administrador autenticado",
+      "url": "http://localhost:3000/admin/perfil",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_listar",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "GET /aluno/listar",
+      "description": "Lista todos os alunos cadastrados",
+      "url": "http://localhost:3000/aluno/listar",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_listar_por_matricula",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "GET /aluno/listar/:matricula",
+      "description": "Busca um aluno específico pela matrícula",
+      "url": "http://localhost:3000/aluno/listar/A1001",
+      "method": "GET",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_cadastrar",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "POST /aluno/cadastrar",
+      "description": "Cadastra um novo aluno",
+      "url": "http://localhost:3000/aluno/cadastrar",
+      "method": "POST",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"matricula\": \"A1001\",\n  \"nome\": \"Maria Silva\",\n  \"email\": \"maria@email.com\"\n}"
+      },
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_editar_total",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "PUT /aluno/editar/total/:matricula",
+      "description": "Atualiza todos os dados editáveis do aluno",
+      "url": "http://localhost:3000/aluno/editar/total/A1001",
+      "method": "PUT",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"nome\": \"Maria Souza\",\n  \"email\": \"maria.souza@email.com\"\n}"
+      },
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_editar_parcial",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "PATCH /aluno/editar/parcial/:matricula",
+      "description": "Atualiza parcialmente os dados do aluno",
+      "url": "http://localhost:3000/aluno/editar/parcial/A1001",
+      "method": "PATCH",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"maria.nova@email.com\"\n}"
+      },
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_excluir_todos",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "DELETE /aluno/excluir/todos",
+      "description": "Exclui todos os alunos cadastrados",
+      "url": "http://localhost:3000/aluno/excluir/todos",
+      "method": "DELETE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    },
+    {
+      "_id": "req_aluno_excluir_por_matricula",
+      "parentId": "fld_aluno",
+      "modified": 1722816000000,
+      "created": 1722816000000,
+      "name": "DELETE /aluno/excluir/:matricula",
+      "description": "Exclui um aluno específico pela matrícula",
+      "url": "http://localhost:3000/aluno/excluir/A1001",
+      "method": "DELETE",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer SEU_TOKEN"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "SEU_TOKEN"
+      },
+      "_type": "request"
+    }
+  ]
+}

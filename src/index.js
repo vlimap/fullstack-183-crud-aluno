@@ -1,5 +1,6 @@
 // Importa o Express, que e a biblioteca usada para criar o servidor da API.
 import express from "express";
+import criarTabela from "./config/create_tables.js";
 
 // Importa o dotenv, que permite ler variaveis de ambiente do arquivo .env.
 import dotenv from "dotenv";
@@ -51,5 +52,6 @@ app.get("/", (requisicao, resposta) => {
 // Inicia o servidor na porta configurada.
 // A funcao dentro do listen roda quando o servidor sobe com sucesso.
 app.listen(porta, () => {
+  criarTabela()
   console.log(`O servidor esta em execucao na porta ${porta}!`);
 });

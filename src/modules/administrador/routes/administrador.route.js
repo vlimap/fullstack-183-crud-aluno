@@ -21,10 +21,6 @@ routerAdmin.post("/login", AdministradorController.login);
  * 2. se estiver valido, chama proximo();
  * 3. o controller devolve o perfil do administrador autenticado.
  */
-routerAdmin.get(
-    "/perfil",
-    AutenticacaoMiddleware.autenticar,
-    AdministradorController.perfil
-);
+routerAdmin.get("/perfil", AutenticacaoMiddleware.autenticar, AdministradorController.perfil);
 
 export default routerAdmin;
